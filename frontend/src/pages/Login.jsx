@@ -62,11 +62,33 @@ function Login() {
           throw new Error('Passwords do not match.')
         }
 
-        const { data, error: signupError } =
-          await supabase.auth.signUp({
-            email: email.trim(),
-            password
-          })
+const { data, error: signupError } =
+  await supabase.auth.signUp({
+    email: email.trim(),
+    password,
+    options: {
+      data: {
+        full_name: name.trim(),
+        business_name: businessName.trim()
+      },
+      emailRedirectTo: `${window.location.origin}/login`
+    }
+  })
+
+if (signupError) throw signupError
+
+if (!data.user) {
+  throw new Error('Account registration failed.')
+}
+
+if (!data.session) {
+  setSuccess(
+    'Account created! Please verify your email before signing in.'
+  )
+  return
+}
+
+navigate('/dashboard')
 
         if (signupError) throw signupError
 
