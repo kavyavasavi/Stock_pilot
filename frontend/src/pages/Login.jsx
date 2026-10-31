@@ -17,35 +17,37 @@ function Login() {
   const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
 
-
-
+  // FORGOT PASSWORD
   async function handleForgotPassword() {
-  setError('')
-  setSuccess('')
+    setError('')
+    setSuccess('')
 
-  if (!email.trim()) {
-    setError('Enter your email address first.')
-    return
-  }
-
-  setLoading(true)
-
-  const { error } = await supabase.auth.resetPasswordForEmail(
-    email.trim(),
-    {
-      redirectTo: `${window.location.origin}/reset-password`
+    if (!email.trim()) {
+      setError('Enter your email address first.')
+      return
     }
-  )
 
-  setLoading(false)
+    setLoading(true)
 
-  if (error) {
-    setError(error.message)
-  } else {
-    setSuccess('Password reset link sent! Check your email.')
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(
+        email.trim(),
+        {
+          redirectTo: `${window.location.origin}/reset-password`
+        }
+      )
+
+      if (error) throw error
+
+      setSuccess('Password reset link sent! Check your email.')
+    } catch (err) {
+      setError(err.message || 'Unable to send password reset email.')
+    } finally {
+      setLoading(false)
+    }
   }
-}
 
+  // SIGNUP AND LOGIN
   async function handleSubmit(event) {
     event.preventDefault()
     setError('')
@@ -54,6 +56,11 @@ function Login() {
 
     try {
       if (isSignup) {
+        // SIGNUP VALIDATION
+        if (!name.trim() || !businessName.trim()) {
+          throw new Error('Please enter your name and business name.')
+        }
+
         if (password.length < 6) {
           throw new Error('Password must be at least 6 characters.')
         }
@@ -62,59 +69,40 @@ function Login() {
           throw new Error('Passwords do not match.')
         }
 
-const { data, error: signupError } =
-  await supabase.auth.signUp({
-    email: email.trim(),
-    password,
-    options: {
-      data: {
-        full_name: name.trim(),
-        business_name: businessName.trim()
-      },
-      emailRedirectTo: `${window.location.origin}/login`
-    }
-  })
-
-if (signupError) throw signupError
-
-if (!data.user) {
-  throw new Error('Account registration failed.')
-}
-
-if (!data.session) {
-  setSuccess(
-    'Account created! Please verify your email before signing in.'
-  )
-  return
-}
-
-navigate('/dashboard')
+        // CREATE NEW USER
+        const { data, error: signupError } =
+          await supabase.auth.signUp({
+            email: email.trim(),
+            password,
+            options: {
+              data: {
+                full_name: name.trim(),
+                business_name: businessName.trim()
+              },
+              emailRedirectTo:
+                'https://stock-pilot-one-rose.vercel.app/dashboard'
+            }
+          })
 
         if (signupError) throw signupError
 
-        // A session is needed to create the business profile.
+        if (!data.user) {
+          throw new Error('Account registration failed.')
+        }
+
+        // EMAIL VERIFICATION REQUIRED
         if (!data.session) {
           setSuccess(
-            'Account created. Please verify your email, then sign in. If email verification is enabled, business setup must be completed after verification.'
+            'Account created successfully! Please verify your email. You will be redirected to your StockPilot dashboard after verification.'
           )
           return
         }
 
-        const { error: profileError } = await supabase.rpc(
-          'register_business_owner',
-          {
-            p_business_name: businessName.trim(),
-            p_full_name: name.trim()
-          }
-        )
-
-        if (profileError) {
-          await supabase.auth.signOut()
-          throw profileError
-        }
-
+        // SESSION ALREADY AVAILABLE
         navigate('/dashboard')
+
       } else {
+        // EXISTING USER LOGIN
         const { error: loginError } =
           await supabase.auth.signInWithPassword({
             email: email.trim(),
@@ -125,6 +113,7 @@ navigate('/dashboard')
 
         navigate('/dashboard')
       }
+
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.')
     } finally {
@@ -132,6 +121,7 @@ navigate('/dashboard')
     }
   }
 
+  // SWITCH BETWEEN LOGIN AND SIGNUP
   function switchMode() {
     setIsSignup(value => !value)
     setError('')
@@ -155,7 +145,9 @@ navigate('/dashboard')
         </span>
 
         <h1>
-          {isSignup ? 'Create your account' : 'Sign in to StockPilot'}
+          {isSignup
+            ? 'Create your account'
+            : 'Sign in to StockPilot'}
         </h1>
 
         <p>
@@ -200,23 +192,25 @@ navigate('/dashboard')
             autoComplete="email"
             required
           />
-{!isSignup && (
-  <div style={{ textAlign: 'right', margin: '8px 0 16px' }}>
-    <button
-      type="button"
-      onClick={handleForgotPassword}
-      disabled={loading}
-      style={{
-        background: 'none',
-        border: 'none',
-        color: '#eab308',
-        cursor: 'pointer'
-      }}
-    >
-      Forgot password?
-    </button>
-  </div>
-)}
+
+          {!isSignup && (
+            <div style={{ textAlign: 'right', margin: '8px 0 16px' }}>
+              <button
+                type="button"
+                onClick={handleForgotPassword}
+                disabled={loading}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#eab308',
+                  cursor: 'pointer'
+                }}
+              >
+                Forgot password?
+              </button>
+            </div>
+          )}
+
           <label htmlFor="password">Password</label>
           <input
             id="password"
@@ -244,10 +238,19 @@ navigate('/dashboard')
             </>
           )}
 
-          {error && <div className="auth-error">{error}</div>}
-          {success && <div className="product-success">{success}</div>}
+          {error && (
+            <div className="auth-error">{error}</div>
+          )}
 
-          <button className="auth-submit" type="submit" disabled={loading}>
+          {success && (
+            <div className="product-success">{success}</div>
+          )}
+
+          <button
+            className="auth-submit"
+            type="submit"
+            disabled={loading}
+          >
             {loading
               ? 'Please wait...'
               : isSignup
@@ -262,7 +265,10 @@ navigate('/dashboard')
         </div>
 
         <div style={{ textAlign: 'center', marginTop: '20px' }}>
-          {isSignup ? 'Already have an account? ' : "New to StockPilot? "}
+          {isSignup
+            ? 'Already have an account? '
+            : 'New to StockPilot? '}
+
           <button
             type="button"
             onClick={switchMode}
@@ -279,7 +285,9 @@ navigate('/dashboard')
         </div>
       </div>
 
-      <Link to="/" className="back-home">← Back to homepage</Link>
+      <Link to="/" className="back-home">
+        ← Back to homepage
+      </Link>
     </div>
   )
 }
