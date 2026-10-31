@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../Service/Supabase/client'
 import './sales.css'
+import BackToOverview from '../components/BackToOverview'
 
 function PurchaseInvoices() {
   const [products, setProducts] = useState([])
@@ -105,6 +106,7 @@ function PurchaseInvoices() {
 
   return (
     <div className="sales-page">
+       <BackToOverview />
       <div className="sales-header">
         <div>
           <h1>Purchase invoices</h1>

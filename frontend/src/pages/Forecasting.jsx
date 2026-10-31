@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../Service/Supabase/client'
 import './sales.css'
+import BackToOverview from '../components/BackToOverview'
 
 // Train a simple linear regression model using daily sales.
 function trainForecastModel(dailySales) {
@@ -222,6 +223,7 @@ function Forecasting() {
 
   return (
     <div className="sales-page">
+      <BackToOverview />
       <div className="sales-header">
         <div>
           <h1>AI Demand Forecasting</h1>

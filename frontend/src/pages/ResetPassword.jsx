@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../Service/Supabase/client'
 import './pages.css'
+import BackToOverview from '../components/BackToOverview'
 
 function ResetPassword() {
   const navigate = useNavigate()

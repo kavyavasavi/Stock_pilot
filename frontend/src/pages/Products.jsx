@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../Service/Supabase/client'
 import './pages.css'
+import BackToOverview from '../components/BackToOverview'
 
 const initialForm = {
   name: '',
@@ -275,7 +276,7 @@ function Products({ session }) {
 
   return (
     <div className="dashboard-layout">
-
+   
       {/* Sidebar */}
       <aside className="sidebar">
         <Link to="/" className="dashboard-brand">
@@ -324,7 +325,7 @@ function Products({ session }) {
 
       {/* Main content */}
       <main className="dashboard-main">
-
+          <BackToOverview />
         <header className="dashboard-topbar">
           <div>
             <span className="dashboard-breadcrumb">

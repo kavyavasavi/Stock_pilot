@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { supabase } from '../Service/Supabase/client'
 import './sales.css'
+import BackToOverview from '../components/BackToOverview'
 
 const suggestions = [
   'Which products should I reorder?',
@@ -57,6 +58,7 @@ function InventoryAssistant() {
 
   return (
     <div className="sales-page">
+      <BackToOverview />
       <div className="sales-header">
         <div>
           <h1>AI Inventory Assistant</h1>
