@@ -11,6 +11,8 @@ import Sales from './pages/Sales'
 import PurchaseInvoices from './pages/PurchaseInvoices'
 import Forecasting from './pages/Forecasting'
 import InventoryAssistant from './pages/InventoryAssistant'
+import ResetPassword from './pages/ResetPassword'
+
 
 function ProtectedRoute({ session, loading, children }) {
   if (loading) {
@@ -118,6 +120,11 @@ function App() {
               <InventoryAssistant />
             </ProtectedRoute>
           }
+        />
+
+        <Route
+          path="/reset-password"
+          element={<ResetPassword />}
         />
       </Routes>
     </BrowserRouter>
