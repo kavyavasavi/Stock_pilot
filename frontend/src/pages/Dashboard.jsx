@@ -244,10 +244,7 @@ function Dashboard({ session }) {
               {profile.role === 'owner' && (
                 <button
                   className="add-product-button"
-                  onClick={() => {
-                    setFormError('')
-                    setShowForm(true)
-                  }}
+                    onClick={() => navigate('/products')}
                 >
                   + Add product
                 </button>
