@@ -307,9 +307,9 @@ function Products({ session }) {
         </Link>
 
         
-        <Link className="sidebar-link" to="/assistant">
+        {/* <Link className="sidebar-link" to="/assistant">
         ✦ AI Assistant
-        </Link>
+        </Link> */}
 
         <div className="sidebar-bottom">
           <div className="user-avatar">
